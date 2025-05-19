@@ -5,9 +5,32 @@
 }
 
 <form method="post">
-    <input asp-for="Changes_Urls!.OriginUrl" name="Changes_Urls.OriginUrl" />
-    <input name="Changes_Urls.ShortUrl" asp-for="Changes_Urls!.ShortUrl" placeholder="Введите короткий URL" required />
+    <input asp-for="Changes_Urls!.OriginUrl" name="Changes_Urls.OriginUrl" placeholder="Введите URL"  />
     <input type="hidden" name="Changes_Urls.CreateUrlTime" value="@DateTime.Now" />
     <input type="hidden" name="Changes_Urls.ClickUrl" value="0" />
     <input type="submit" />
 </form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Идентификатор</th>
+            <th>Оригинальный URL</th>
+            <th>Короткий URL</th>
+            <th>Дата создания</th>
+            <th>Количество переходов</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.ChangesUrls) // Используем ChangesUrls
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.OriginUrl</td>
+                <td><a href="@item.OriginUrl">ttps://clonegoogle/@item.ShortUrl</a></td>
+                <td>@item.CreateUrlTime.ToString("g")</td>
+                <td>@item.ClickUrl</td>
+            </tr>
+        }
+    </tbody>
+</table>
