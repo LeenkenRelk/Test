@@ -5,11 +5,11 @@ namespace CloneGoogle.Models // Замените YourNamespace на ваш фа�
     public class ChangesUrl
     {
         public int Id { get; set; }
-        public string OriginUrl { get; set; }
+        public string? OriginUrl { get; set; }
 
-        public string ShortUrl { get; set; }
+        public string? ShortUrl { get; set; }
 
-        public DataType CreateUrlTime { get; set; }
+        public DateTime CreateUrlTime { get; set; }
         public int ClickUrl { get; set; }
     }
 }
