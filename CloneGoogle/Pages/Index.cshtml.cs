@@ -25,13 +25,24 @@ public class IndexModel : PageModel
 
     public List<ChangesUrl> ChangesUrls { get; set; }
     public ChangesUrl Changes_Urls { get; set; }
-    public void OnGet()
+    public void OnGet(int id)
     {
         ChangesUrls = _context.ChangesUrls.AsNoTracking().ToList();
     }
 
+    public async Task<IActionResult> OnGetRedirect(int id)
+    {
+        var urlEntry = await _context.ChangesUrls.FindAsync(id);
+        if (urlEntry == null)
+            return NotFound();
 
+        // Увеличиваем счётчик кликов
+        urlEntry.ClickUrl++;
+        await _context.SaveChangesAsync();
 
+        // Редирект на внешний URL
+        return Redirect(urlEntry.OriginUrl);
+    }
     public IActionResult OnPost()
     {
         if (!ModelState.IsValid)
@@ -50,7 +61,7 @@ public class IndexModel : PageModel
             return sb.ToString();
         }
 
-        // Создание короткой ссылки
+
         (string OriginUrl, string ShortUrl) CreateShortLink(string originUrl)
         {
             string shortCode = GenerateShortCode(6);
@@ -59,20 +70,28 @@ public class IndexModel : PageModel
 
         // Получение оригинального URL
         string originUrl = Request.Form["Changes_Urls.OriginUrl"];
-        var (url, shortCode) = CreateShortLink(originUrl);
+        if (originUrl == null)
+        {
+            ModelState.AddModelError("OriginUrl", "URL не может быть пустым.");
+            return Page();
+        }
+        else
+        {
 
-        // Создание объекта Changes_Urls
-        Changes_Urls.OriginUrl = url;
-        Changes_Urls.ShortUrl = shortCode;
-        Changes_Urls.CreateUrlTime = DateTime.Now;
-        Changes_Urls.ClickUrl = 0;
+            var (url, shortCode) = CreateShortLink(originUrl);
 
-        // Сохранение в базе данных
-        _context.ChangesUrls.Add(Changes_Urls);
-        _context.SaveChanges();
 
-        return Page();
+            Changes_Urls.OriginUrl = url;
+            Changes_Urls.ShortUrl = shortCode;
+            Changes_Urls.CreateUrlTime = DateTime.Now;
+            Changes_Urls.ClickUrl = 0;
 
+
+            _context.ChangesUrls.Add(Changes_Urls);
+            _context.SaveChanges();
+
+            return Page();
+        }
     }
 
 }
